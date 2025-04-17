@@ -1,14 +1,162 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Hellow World</title>
-    </head>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PCN Appeal Helper</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <header>
+        <div class="container">
+            <h1><i class="fas fa-car"></i> PCN Appeal Helper</h1>
+            <p>Get AI assistance with your Penalty Charge Notice appeals</p>
+        </div>
+    </header>
 
-    <body>
-        <h1 style="color: blueviolet; font-style: italic;">Hello World again</h1>
-        <p>From bustling city squares to quiet mountain peaks, a universal greeting echoes across the globe. Whether carried on the wind as a whispered "hello," or illuminated in the glow of a digital screen, a warm salutation extends to every corner of our shared world. To the vibrant tapestry of cultures, to the diverse array of languages, and to each individual spirit residing within, we offer a moment of connection, a simple acknowledgement of our collective existence. May peace and understanding find their way to every heart, and may the bonds of humanity strengthen with each passing day.</p>
-        <br/>
-        <img src="image.jpeg" alt="AI generated picture showing humaning living in harmony with nature" width="100%">
-    </body>    
+    <main class="container">
+        <section class="intro">
+            <h2>How it works</h2>
+            <ol>
+                <li>Fill out the form with details about your PCN</li>
+                <li>Our system structures your information for optimal results</li>
+                <li>AI analyzes your case and provides tailored advice</li>
+                <li>Use the advice to prepare your appeal</li>
+            </ol>
+            <div class="disclaimer">
+                <p><strong>Note:</strong> This tool provides general guidance only. It is not legal advice.</p>
+            </div>
+        </section>
 
+        <section class="appeal-form" id="appeal-form-section">
+            <h2>PCN Appeal Information</h2>
+            <form id="pcnForm">
+                <div class="progress-bar">
+                    <div class="progress" id="formProgress"></div>
+                </div>
+                
+                <div class="form-step active" id="step1">
+                    <h3>PCN Details</h3>
+                    <div class="form-group">
+                        <label for="pcnType">What is your PCN type?</label>
+                        <select id="pcnType" name="pcnType" required>
+                            <option value="">-- Select PCN Type --</option>
+                            <option value="Council PCN">Council PCN</option>
+                            <option value="Traffic Management Act PCN">Traffic Management Act PCN</option>
+                            <option value="London Congestion Charge PCN">London Congestion Charge PCN</option>
+                            <option value="Private Parking Ticket">Private Parking Ticket</option>
+                            <option value="Other">Other</option>
+                        </select>
+                        <span class="error-message" id="pcnTypeError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Reason PCN was issued:</label>
+                        <div class="radio-group">
+                            <div class="radio-option">
+                                <input type="radio" id="restrictedArea" name="pcnReason" value="Parking in a restricted area" required>
+                                <label for="restrictedArea">Parking in a restricted area</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="overstayingTime" name="pcnReason" value="Overstaying the time limit">
+                                <label for="overstayingTime">Overstaying the time limit</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="noPermit" name="pcnReason" value="Not displaying the valid permit">
+                                <label for="noPermit">Not displaying the valid permit</label>
+                            </div>
+                            <div class="radio-option">
+                                <input type="radio" id="otherReason" name="pcnReason" value="Other">
+                                <label for="otherReason">Other</label>
+                            </div>
+                        </div>
+                        <span class="error-message" id="pcnReasonError"></span>
+                    </div>
+
+                    <div class="form-navigation">
+                        <button type="button" class="btn next-btn" id="toStep2">Next <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <div class="form-step" id="step2">
+                    <h3>Dates & Actions</h3>
+                    <div class="form-group">
+                        <label for="pcnIssueDate">When was the PCN issued?</label>
+                        <input type="date" id="pcnIssueDate" name="pcnIssueDate" required>
+                        <span class="error-message" id="pcnIssueDateError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="incidentDate">When did the incident happen?</label>
+                        <input type="date" id="incidentDate" name="incidentDate" required>
+                        <span class="error-message" id="incidentDateError"></span>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="stepsTaken">What steps have you taken already?</label>
+                        <textarea id="stepsTaken" name="stepsTaken" rows="3" placeholder="e.g., Contacted the council, gathered evidence, etc."></textarea>
+                        <span class="error-message" id="stepsTakenError"></span>
+                    </div>
+
+                    <div class="form-navigation">
+                        <button type="button" class="btn prev-btn" id="toStep1"><i class="fas fa-arrow-left"></i> Previous</button>
+                        <button type="button" class="btn next-btn" id="toStep3">Next <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                </div>
+
+                <div class="form-step" id="step3">
+                    <h3>Your Explanation</h3>
+                    <div class="form-group">
+                        <label for="explanation">Please explain what happened and why you are appealing:</label>
+                        <textarea id="explanation" name="explanation" rows="6" required placeholder="Provide as much relevant detail as possible about your situation..."></textarea>
+                        <span class="error-message" id="explanationError"></span>
+                    </div>
+
+                    <div class="form-navigation">
+                        <button type="button" class="btn prev-btn" id="toStep2"><i class="fas fa-arrow-left"></i> Previous</button>
+                        <button type="submit" class="btn submit-btn" id="submitBtn">Get Appeal Advice <i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </form>
+        </section>
+
+        <section class="results-section hidden" id="results-section">
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Analyzing your appeal information...</p>
+            </div>
+            
+            <div class="results hidden" id="results">
+                <h2>Your PCN Appeal Advice</h2>
+                <div class="advice-container" id="advice-container">
+                    <!-- AI response will be inserted here -->
+                </div>
+                <div class="action-buttons">
+                    <button id="copyBtn" class="btn"><i class="fas fa-copy"></i> Copy Advice</button>
+                    <button id="startOverBtn" class="btn"><i class="fas fa-redo"></i> Start New Appeal</button>
+                </div>
+            </div>
+
+            <div class="error-message hidden" id="api-error">
+                <h3><i class="fas fa-exclamation-circle"></i> Something went wrong</h3>
+                <p>We couldn't connect to our advice service. Please try again later.</p>
+                <button id="retryBtn" class="btn"><i class="fas fa-sync"></i> Try Again</button>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2025 PCN Appeal Helper | This is a demonstration application and does not provide legal advice</p>
+            <div class="accessibility-controls">
+                <button id="increaseFontBtn" aria-label="Increase font size"><i class="fas fa-text-height"></i>+</button>
+                <button id="decreaseFontBtn" aria-label="Decrease font size"><i class="fas fa-text-height"></i>-</button>
+                <button id="toggleContrastBtn" aria-label="Toggle high contrast"><i class="fas fa-adjust"></i></button>
+            </div>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
 </html>

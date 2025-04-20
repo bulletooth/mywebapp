@@ -328,19 +328,45 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Show results
     function showResults(response) {
-        loadingIndicator.classList.add('hidden');
-        resultsContainer.classList.remove('hidden');
+        console.log("Showing results, hiding loading indicator");
         
-    // Make sure response is a valid string before processing
-    if (response && typeof response === 'string') {
-        // Convert markdown to HTML (simplified conversion)
-        const htmlResponse = markdownToHtml(response);
-        adviceContainer.innerHTML = htmlResponse;
-    } else {
-        // Handle invalid response
-        adviceContainer.innerHTML = '<p>Sorry, we received an invalid response. Please try again.</p>';
-        console.error('Invalid response received:', response);
-    }
+        // First, make sure the loading indicator is hidden
+        if (loadingIndicator) {
+            loadingIndicator.style.display = 'none'; // Force immediate hide with inline style
+            loadingIndicator.classList.add('hidden');
+        } else {
+            console.error("Loading indicator element not found!");
+        }
+        
+        // Then show the results container
+        if (resultsContainer) {
+            resultsContainer.style.display = 'block'; // Force immediate show with inline style
+            resultsContainer.classList.remove('hidden');
+        } else {
+            console.error("Results container element not found!");
+        }
+        
+        // Process and display the advice
+        if (adviceContainer) {
+            // Validate response
+            if (response && typeof response === 'string') {
+                const htmlResponse = markdownToHtml(response);
+                adviceContainer.innerHTML = htmlResponse;
+            } else {
+                adviceContainer.innerHTML = '<p>Sorry, we received an invalid response. Please try again.</p>';
+                console.error("Invalid response received:", response);
+            }
+        } else {
+            console.error("Advice container element not found!");
+        }
+        
+        // Force a DOM reflow to ensure UI updates
+        document.body.offsetHeight;
+        
+        // Ensure the results section is visible and scroll to it
+        if (resultsSection) {
+            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     }
 
     // Show API error
@@ -434,298 +460,51 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Call Anthropic API
     async function callAnthropicAPI(formData) {
-        // In a production environment, this would call the Anthropic API via a server-side endpoint
-        // to protect API keys and handle rate limiting
-        
-        // For demonstration purposes, here's how the API would be called:
-        // const apiUrl = 'https://api.anthropic.com/v1/messages';
-        // const apiKey = 'YOUR_API_KEY'; // This should be kept secure on server-side
-        
-        // const requestBody = {
-        //     model: "claude-3-opus-20240229",
-        //     max_tokens: 1024,
-        //     messages: [
-        //         {
-        //             role: "user",
-        //             content: prompt
-        //         }
-        //     ]
-        // };
-        
-        // const response = await fetch(apiUrl, {
-        //     method: 'POST',
-        //     headers: {
-        //         'Content-Type': 'application/json',
-        //         'x-api-key': apiKey,
-        //         'anthropic-version': '2023-06-01'
-        //     },
-        //     body: JSON.stringify(requestBody)
-        // });
-        
-        // const data = await response.json();
-        // return data.content[0].text;
-        
-        // For this demo, we're simulating a response after a delay
-        
-        // Structure the prompt using form data
-        const prompt = `
-            Please review the following Penalty Charge Notice (PCN) appeal information:
-
-            PCN Type: ${formData.pcnType}
-            Reason for PCN: ${formData.pcnReason}
-            Date PCN Issued: ${formData.pcnIssueDate}
-            Date of Incident: ${formData.incidentDate}
-            Steps Already Taken: ${formData.stepsTaken || 'None specified'}
-
-            Explanation:
-            ${formData.explanation}
-
-            Based on this information, please provide:
-            1. An assessment of the appeal's potential strength and success rate on a scale of 1 to 100, with 1 indicating low and 100 indicating high
-            2. Specific points that should be emphasized in the appeal
-            3. Additional evidence that might help the case
-            4. Recommended next steps
-            5. A draft appeal letter that could be used as a template
-            `;
-
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 2000));
-        
-        // For demo purposes: Simulate API response with different responses based on PCN reason
-        let responseText = '';
-        
-        if (formData.pcnReason === 'Parking in a restricted area') {
-            responseText = `
-                ## Assessment of Appeal Strength
-
-                Your appeal has **moderate potential** for success. Appeals against restricted area PCNs often require strong evidence of mitigating circumstances or signage issues.
-
-                ## Key Points to Emphasize
-
-                * The lack of clear signage you mentioned is a strong point - authorities must ensure restrictions are clearly marked
-                * Your immediate action to move the vehicle shows good faith
-                * The fact that it was your first offense in the area may work in your favor
-
-                ## Recommended Evidence
-
-                * Photos of the parking location showing unclear or obscured signage
-                * Any receipts showing how long you were actually parked
-                * Statements from any witnesses who can confirm the signage was unclear
-                * Copy of your clean driving/parking record if available
-
-                ## Next Steps
-
-                1. Submit your formal appeal within 28 days of receiving the PCN
-                2. Include all supporting evidence as attachments
-                3. Keep copies of all correspondence
-                4. If rejected, consider appealing to the Traffic Penalty Tribunal
-
-                ## Draft Appeal Letter
-
-                [YOUR ADDRESS]
-                [YOUR EMAIL]
-                [YOUR PHONE]
-                [DATE]
-
-                [COUNCIL/AUTHORITY NAME]
-                [THEIR ADDRESS]
-
-                Re: PCN Reference Number: [INSERT PCN NUMBER]
-
-                Dear Sir/Madam,
-
-                I am writing to appeal the Penalty Charge Notice issued on ${formData.pcnIssueDate} for parking in a restricted area.
-
-                I believe this penalty should be cancelled for the following reasons:
-
-                The signage in the area was inadequate and unclear. Specifically, [DESCRIBE EXACTLY WHAT WAS WRONG WITH THE SIGNAGE - e.g., "the signs were obscured by overgrown foliage" or "the parking restriction times were not clearly visible"].
-
-                ${formData.explanation}
-
-                I have already taken the following steps regarding this matter: ${formData.stepsTaken || "I am making this formal appeal as my first action."}
-
-                I have included the following evidence to support my appeal [LIST EVIDENCE HERE].
-
-                I trust you will consider my appeal favorably and cancel this PCN. If you require any further information, please do not hesitate to contact me.
-
-                Yours faithfully,
-                [YOUR NAME]
-                `;
-        } 
-        else if (formData.pcnReason === 'Overstaying the time limit') {
-            responseText = `
-                ## Assessment of Appeal Strength
-
-                Your appeal has **fair potential** for success. Time limit appeals can succeed when there are valid mitigating circumstances or when evidence shows you were within the allowed timeframe.
-
-                ## Key Points to Emphasize
-
-                * Any proof of actual time spent in the parking location
-                * Technical issues with payment methods if relevant
-                * Any emergencies or unforeseen circumstances that caused the delay
-                * Any confusion with signage related to time limits
-
-                ## Recommended Evidence
-
-                * Parking payment receipts/apps showing entry and exit times
-                * Any medical documentation if there was a health emergency
-                * Photos of parking meters if they were malfunctioning
-                * Witness statements if applicable
-
-                ## Next Steps
-
-                1. Submit your formal appeal within 28 days of receiving the PCN
-                2. Include all timestamped evidence
-                3. Be specific about exact times of arrival and departure
-                4. If initially rejected, consider escalating to the relevant tribunal
-
-                ## Draft Appeal Letter
-
-                [YOUR ADDRESS]
-                [YOUR EMAIL]
-                [YOUR PHONE]
-                [DATE]
-
-                [COUNCIL/AUTHORITY NAME]
-                [THEIR ADDRESS]
-
-                Re: PCN Reference Number: [INSERT PCN NUMBER]
-
-                Dear Sir/Madam,
-
-                I am writing to appeal the Penalty Charge Notice issued on ${formData.pcnIssueDate} for allegedly overstaying the time limit.
-
-                I believe this penalty should be cancelled for the following reasons:
-
-                [DETAILS OF WHY YOU BELIEVE YOU DID NOT EXCEED THE TIME LIMIT OR EXPLANATION OF MITIGATING CIRCUMSTANCES]
-
-                ${formData.explanation}
-
-                I have already taken the following steps regarding this matter: ${formData.stepsTaken || "I am making this formal appeal as my first action."}
-
-                I have included the following evidence to support my appeal [LIST EVIDENCE HERE].
-
-                I trust you will consider my appeal favorably and cancel this PCN. If you require any further information, please do not hesitate to contact me.
-
-                Yours faithfully,
-                [YOUR NAME]
-                `;
-        } 
-        else if (formData.pcnReason === 'Not displaying the valid permit') {
-            responseText = `
-                ## Assessment of Appeal Strength
-
-                Your appeal has **good potential** for success. Permit display cases are often successful when you can prove you actually had a valid permit at the time.
-
-                ## Key Points to Emphasize
-
-                * You held a valid permit at the time of the incident
-                * Reasons why the permit wasn't visible (fell off dashboard, displayed incorrectly, etc.)
-                * Your history of compliance with parking regulations
-                * Any technical issues with digital permits if applicable
-
-                ## Recommended Evidence
-
-                * Copy of your valid permit covering the date of the PCN
-                * Receipt/proof of payment for the permit
-                * Any precedent cases where appeals were granted in similar circumstances
-                * Photos showing how/where permit was displayed if relevant
-
-                ## Next Steps
-
-                1. Submit your appeal with a copy of your valid permit as primary evidence
-                2. Explain clearly why the permit wasn't properly displayed
-                3. Request leniency based on the fact you actually had authorization to park
-                4. Follow up within 2 weeks if you don't receive a response
-
-                ## Draft Appeal Letter
-
-                [YOUR ADDRESS]
-                [YOUR EMAIL]
-                [YOUR PHONE]
-                [DATE]
-
-                [COUNCIL/AUTHORITY NAME]
-                [THEIR ADDRESS]
-
-                Re: PCN Reference Number: [INSERT PCN NUMBER]
-
-                Dear Sir/Madam,
-
-                I am writing to appeal the Penalty Charge Notice issued on ${formData.pcnIssueDate} for not displaying a valid permit.
-
-                I believe this penalty should be cancelled because I did have a valid permit at the time of the alleged offense. [EXPLAIN WHAT HAPPENED TO THE PERMIT - e.g., "The permit had fallen from my dashboard onto the floor of the vehicle" or "I had paid for the permit electronically and there was a system error"].
-
-                ${formData.explanation}
-
-                I have already taken the following steps regarding this matter: ${formData.stepsTaken || "I am making this formal appeal as my first action."}
-
-                I have included the following evidence to support my appeal [LIST EVIDENCE HERE, ESPECIALLY PROOF OF VALID PERMIT].
-
-                I trust you will consider my appeal favorably and cancel this PCN. If you require any further information, please do not hesitate to contact me.
-
-                Yours faithfully,
-                [YOUR NAME]
-                `;
-                        } else {
-                            responseText = `
-                ## Assessment of Appeal Strength
-
-                Based on the information provided, your appeal has **moderate potential** for success. The strength of PCN appeals varies depending on specific circumstances and evidence.
-
-                ## Key Points to Emphasize
-
-                * Any mitigating circumstances that led to the situation
-                * Any errors in the PCN itself (incorrect details, times, etc.)
-                * Whether proper procedures were followed by the issuing authority
-                * Your history of compliance with parking/traffic regulations
-
-                ## Recommended Evidence
-
-                * Photos of the location, signage, and any relevant details
-                * Any documentation supporting your explanation
-                * Witness statements if applicable
-                * Records of previous communication about this issue
-
-                ## Next Steps
-
-                1. Submit your formal appeal within the timeframe specified on your PCN (typically 28 days)
-                2. Include all supporting evidence with your appeal
-                3. Keep copies of all correspondence
-                4. Consider escalating to the appropriate tribunal if your initial appeal is rejected
-
-                ## Draft Appeal Letter
-
-                [YOUR ADDRESS]
-                [YOUR EMAIL]
-                [YOUR PHONE]
-                [DATE]
-
-                [COUNCIL/AUTHORITY NAME]
-                [THEIR ADDRESS]
-
-                Re: PCN Reference Number: [INSERT PCN NUMBER]
-
-                Dear Sir/Madam,
-
-                I am writing to appeal the Penalty Charge Notice issued on ${formData.pcnIssueDate}.
-
-                I believe this penalty should be cancelled for the following reasons:
-
-                ${formData.explanation}
-
-                I have already taken the following steps regarding this matter: ${formData.stepsTaken || "I am making this formal appeal as my first action."}
-
-                I have included the following evidence to support my appeal [LIST EVIDENCE HERE].
-
-                I trust you will consider my appeal favorably and cancel this PCN. If you require any further information, please do not hesitate to contact me.
-
-                Yours faithfully,
-                [YOUR NAME]
-                `;
+        try {
+            // Call your backend API instead of directly calling Anthropic
+            const response = await fetch('/api/generate-advice', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            });
+            
+            // Check if the request was successful
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('API Error Response:', errorText);
+                
+                // Try to parse as JSON, but handle the case where it's not JSON
+                let errorData;
+                try {
+                    errorData = JSON.parse(errorText);
+                } catch (parseError) {
+                    console.error('Error parsing error response as JSON:', parseError);
+                    throw new Error('An error occurred while generating advice');
+                }
+                
+                throw new Error(errorData.message || 'An error occurred while generating advice');
+            }
+            
+            // Try to parse the response as JSON
+            let data;
+            try {
+                const responseText = await response.text();
+                console.log('Raw API Response:', responseText);
+                
+                // Try parsing the response text as JSON
+                data = JSON.parse(responseText);
+            } catch (parseError) {
+                console.error('Error parsing API response as JSON:', parseError);
+                throw new Error('Invalid response format from server');
+            }
+            
+            return data.advice;
+            
+        } catch (error) {
+            console.error('Error in API call:', error);
+            throw error;
         }
-    
-        console.log("Returning response text:", responseText.substring(0, 50) + "...");
-        return responseText;
     }
 })

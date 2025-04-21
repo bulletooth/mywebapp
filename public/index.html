@@ -118,6 +118,8 @@
                         <button type="submit" class="btn submit-btn" id="submitBtn">Get Appeal Advice <i class="fas fa-paper-plane"></i></button>
                     </div>
                 </div>
+
+                <div class="additional-info-section" id="additional-info-section"></div>
             </form>
         </section>
 
@@ -135,6 +137,17 @@
                 <div class="action-buttons">
                     <button id="copyBtn" class="btn"><i class="fas fa-copy"></i> Copy Content</button>
                     <button id="startOverBtn" class="btn"><i class="fas fa-redo"></i> Start New Appeal</button>
+                </div>
+            </div>
+
+            <div class="updated-advice-container hidden" id="updated-advice-container">
+                <div class="loading" id="updated-loading">
+                    <div class="spinner"></div>
+                    <p>Generating updated advice...</p>
+                </div>
+                <div id="updated-advice" class="updated-advice hidden">
+                    <h3>Updated Appeal Advice</h3>
+                    <div id="updated-advice-content"></div>
                 </div>
             </div>
         

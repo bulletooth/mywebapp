@@ -603,3 +603,79 @@ footer p {
 .assessment-view {
     animation: fadeIn 0.8s;
 }
+
+/* Additional Information Section */
+.additional-info-section {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid var(--secondary-color);
+}
+
+.additional-info-section h3 {
+    margin-bottom: 0.75rem;
+    color: var(--primary-color);
+}
+
+.additional-info-section p {
+    margin-bottom: 1rem;
+}
+
+.additional-info-section textarea {
+    width: 100%;
+    padding: 0.8rem;
+    border: 1px solid #ddd;
+    border-radius: var(--border-radius);
+    font-family: inherit;
+    font-size: 1rem;
+    transition: var(--transition);
+    margin-bottom: 1rem;
+}
+
+.additional-info-section textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px rgba(58, 110, 165, 0.2);
+}
+
+.additional-info-section .submit-btn {
+    display: block;
+    margin-left: auto;
+}
+
+/* Updated Advice Container */
+.updated-advice-container {
+    margin-top: 2rem;
+    padding-top: 1.5rem;
+    border-top: 2px solid var(--secondary-color);
+}
+
+.updated-advice-container.hidden {
+    display: none;
+}
+
+.updated-advice h3 {
+    margin-bottom: 1rem;
+    color: var(--primary-color);
+}
+
+.updated-advice-content {
+    background-color: #f9f9f9;
+    border-radius: var(--border-radius);
+    padding: 1.25rem;
+    border: 1px solid #eee;
+}
+
+/* Loading state for updated advice */
+#updated-loading {
+    padding: 1.5rem;
+    text-align: center;
+}
+
+#updated-loading .spinner {
+    margin: 0 auto 1rem;
+}
+
+/* Animation for updated advice */
+.updated-advice {
+    animation: fadeIn 0.8s;
+}

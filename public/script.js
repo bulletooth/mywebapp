@@ -116,12 +116,47 @@ document.addEventListener('DOMContentLoaded', function() {
         // Reset form
         pcnForm.reset();
         
-        // Show form and hide results
-        appealFormSection.classList.remove('hidden');
-        resultsSection.classList.add('hidden');
+        // Clear all advice containers
+        adviceContainer.innerHTML = '';
         
-        // Reset to first step
+        // Reset global variables
+        savedAdvice = '';
+        savedAssessment = null;
+        originalApiResponse = '';
+        
+        // 1. Hide ALL results-related elements
+        resultsSection.classList.add('hidden');
+        resultsSection.style.display = 'none';
+        
+        resultsContainer.classList.add('hidden');
+        resultsContainer.style.display = 'none';
+        
+        loadingIndicator.classList.add('hidden');
+        loadingIndicator.style.display = 'none';
+        
+        apiError.classList.add('hidden');
+        
+        // Clear any updated advice containers
+        const updatedAdviceContainer = document.getElementById('updated-advice-container');
+        if (updatedAdviceContainer) {
+            updatedAdviceContainer.classList.add('hidden');
+            updatedAdviceContainer.style.display = 'none';
+            
+            const updatedAdviceContent = document.getElementById('updated-advice-content');
+            if (updatedAdviceContent) {
+                updatedAdviceContent.innerHTML = '';
+            }
+        }
+        
+        // 2. Show form section
+        appealFormSection.classList.remove('hidden');
+        appealFormSection.style.display = 'block';
+        
+        // 3. Reset to first step
         showStep(1);
+        
+        // 4. Scroll to the form
+        appealFormSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
     
     retryBtn.addEventListener('click', async function() {
@@ -333,13 +368,27 @@ document.addEventListener('DOMContentLoaded', function() {
         const advicePart = responseText.substring(separatorIndex + 3).trim();
         
         try {
-            const assessment = JSON.parse(jsonPart);
-            // Save the assessment globally
-            savedAssessment = assessment;
-            return {
-                assessment: assessment,
-                detailedAdvice: advicePart
-            };
+            // Look for the JSON object in the response text
+            // Match anything between curly braces including the braces
+            const jsonRegex = /(\{[\s\S]*\})/;
+            const match = jsonPart.match(jsonRegex);
+            
+            if (match && match[1]) {
+                const jsonString = match[1];
+                const assessment = JSON.parse(jsonString);
+                // Save the assessment globally
+                savedAssessment = assessment;
+                return {
+                    assessment: assessment,
+                    detailedAdvice: advicePart
+                };
+            } else {
+                console.error('No JSON object found in the response');
+                return {
+                    assessment: null,
+                    detailedAdvice: responseText
+                };
+            }
         } catch (error) {
             console.error('Error parsing assessment JSON:', error);
             return {
@@ -430,25 +479,17 @@ document.addEventListener('DOMContentLoaded', function() {
     function showResults(response) {
         console.log("Showing results, hiding loading indicator");
         
-        // Hidie loading indicator
-        if (loadingIndicator) {
-            loadingIndicator.style.display = 'none'; // Force immediate hide with inline style
-            loadingIndicator.classList.add('hidden');
-        } else {
-            console.error("Loading indicator element not found!");
-        }
+        // 1. Hide loading indicator (both class and style)
+        loadingIndicator.classList.add('hidden');
+        loadingIndicator.style.display = 'none';
         
-        // Then show the results container
-        if (resultsContainer) {
-            resultsContainer.style.display = 'block'; // Force immediate show with inline style
-            resultsContainer.classList.remove('hidden');
-        } else {
-            console.error("Results container element not found!");
-        }
+        // 2. Show the results container (both class and style)
+        resultsContainer.classList.remove('hidden');
+        resultsContainer.style.display = 'block';
         
-        // Process and display the advice
+        // 3. Process and display the advice
         const processedResponse = processApiResponse(response);
-    
+        
         if (processedResponse.assessment) {
             // Create assessment view
             const ratingHTML = createRatingVisualization(processedResponse.assessment.rating);
@@ -460,7 +501,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const continueButtonHTML = createContinueButton();
             
             // Store the detailed advice for later
-            savedAdvice = processedResponse.detailedAdvice;
+            savedAdvice = processedResponse.detailedAdvice || 'No detailed advice available.';
             
             // Update the advice container
             adviceContainer.innerHTML = `
@@ -473,90 +514,46 @@ document.addEventListener('DOMContentLoaded', function() {
             `;
             
             // Add event listener to the continue button
-            document.getElementById('continueBtn').addEventListener('click', function() {
-                showDetailedAdvice(savedAdvice);
-            });
+            const continueBtn = document.getElementById('continueBtn');
+            if (continueBtn) {
+                continueBtn.addEventListener('click', function() {
+                    if (!savedAdvice || savedAdvice.trim() === '') {
+                        alert('Detailed advice is not available. Please try submitting your form again.');
+                        return;
+                    }
+                    showDetailedAdvice(savedAdvice);
+                });
+            }
         } else {
             // If no assessment JSON was found, just show the response as advice
-            const htmlResponse = markdownToHtml(processedResponse.detailedAdvice);
+            const htmlResponse = markdownToHtml(processedResponse.detailedAdvice || 'No advice available.');
             adviceContainer.innerHTML = htmlResponse;
         }
         
-        // Ensure the results section is visible and scroll to it
-        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // 4. Ensure the results section is visible and scroll to it
+        resultsSection.classList.remove('hidden');
+        resultsSection.style.display = 'block';
         
-        // Ensure the results section is visible and scroll to it
         resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
-
-    // Function to get detailed advice
-    async function getDetailedAdvice(formData, assessment) {
-        try {
-            // Create request payload
-            const payload = {
-                ...formData,
-                initialAssessment: assessment.initial_assessment
-            };
-            
-            // Call the API
-            const response = await fetch('/api/generate-detailed-advice', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(payload)
-            });
-            
-            // Check if request was successful
-            if (!response.ok) {
-                const errorText = await response.text();
-                console.error('API Error Response:', errorText);
-                
-                let errorData;
-                try {
-                    errorData = JSON.parse(errorText);
-                } catch (parseError) {
-                    throw new Error('An error occurred while generating detailed advice');
-                }
-                
-                throw new Error(errorData.message || 'An error occurred while generating detailed advice');
-            }
-            
-            // Parse response
-            const data = await response.json();
-            
-            // Show the detailed advice
-            showDetailedAdvice(data.detailedAdvice);
-            
-        } catch (error) {
-            console.error('Error getting detailed advice:', error);
-            
-            // Show error in the advice container
-            adviceContainer.innerHTML = `
-                <div class="error-message">
-                    <h3><i class="fas fa-exclamation-circle"></i> Something went wrong</h3>
-                    <p>We couldn't generate detailed advice. Please try again.</p>
-                    <button id="retryDetailedBtn" class="btn"><i class="fas fa-sync"></i> Try Again</button>
-                </div>
-            `;
-            
-            // Add event listener to retry button
-            document.getElementById('retryDetailedBtn').addEventListener('click', function() {
-                getDetailedAdvice(savedFormData, savedAssessment);
-            });
-        }
     }
 
     // Function to show detailed advice
     function showDetailedAdvice(adviceText) {
+        // Validate adviceText
+        if (!adviceText || adviceText.trim() === '') {
+            adviceText = 'No detailed advice is available at this time.';
+        }
+        
         const htmlResponse = markdownToHtml(adviceText);
         
         // Create back button
         const backButton = document.createElement('button');
         backButton.className = 'btn back-btn';
         backButton.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Assessment';
+        
+        // Fixed back button functionality
         backButton.addEventListener('click', function() {
-            // Get the saved assessment data
+            // Direct manipulation of the DOM to recreate the assessment view
             if (savedAssessment) {
                 // Recreate the assessment view
                 const ratingHTML = createRatingVisualization(savedAssessment.rating);
@@ -577,10 +574,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `;
                 
-                // Add event listener to the continue button
-                document.getElementById('continueBtn').addEventListener('click', function() {
-                    showDetailedAdvice(savedAdvice);
-                });
+                // Add event listener to the continue button - needs to be done after creating the button
+                const continueBtn = document.getElementById('continueBtn');
+                if (continueBtn) {
+                    continueBtn.addEventListener('click', function() {
+                        showDetailedAdvice(savedAdvice);
+                    });
+                } else {
+                    console.error("Continue button not found after recreating assessment view");
+                }
             } else {
                 // If there's no saved assessment, show a message
                 adviceContainer.innerHTML = `
@@ -593,15 +595,55 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
         
-        // Replace content in advice container
+        // Create detailed advice HTML with additional information section
         adviceContainer.innerHTML = `
             <div class="detailed-advice">
                 ${htmlResponse}
+            </div>
+            <div class="additional-info-section" id="additional-info-section">
+                <h3>Provide Additional Information</h3>
+                <p>Is there anything else you'd like to add to strengthen your appeal?</p>
+                <div class="form-group">
+                    <textarea id="additional-info" name="additional-info" rows="5" placeholder="Add any other relevant details or circumstances that might help your case..."></textarea>
+                </div>
+                <button id="submit-additional-info" class="btn submit-btn">
+                    <i class="fas fa-sync-alt"></i> Generate Updated Advice
+                </button>
+            </div>
+            
+            <div id="updated-advice-container" class="updated-advice-container hidden">
+                <div class="loading" id="updated-loading">
+                    <div class="spinner"></div>
+                    <p>Generating updated advice...</p>
+                </div>
+                <div id="updated-advice" class="updated-advice hidden">
+                    <h3>Updated Appeal Advice</h3>
+                    <div id="updated-advice-content"></div>
+                </div>
             </div>
         `;
         
         // Add back button at the top
         adviceContainer.prepend(backButton);
+        
+        // Add event listener to the submit additional info button - after creating it
+        const submitBtn = document.getElementById('submit-additional-info');
+        if (submitBtn) {
+            submitBtn.addEventListener('click', function() {
+                const additionalInfo = document.getElementById('additional-info').value.trim();
+                
+                if (additionalInfo.length < 10) {
+                    // Show error if the input is too short
+                    alert('Please provide more detailed additional information (at least 10 characters).');
+                    return;
+                }
+                
+                // Call the getDetailedAdvice function with the additional info
+                getDetailedAdvice(savedFormData, savedAssessment, additionalInfo);
+            });
+        } else {
+            console.error("Submit additional info button not found");
+        }
         
         // Scroll to the advice
         adviceContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
@@ -613,8 +655,17 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Show API error
     function showApiError() {
+        // Hide loading indicator
         loadingIndicator.classList.add('hidden');
+        loadingIndicator.style.display = 'none';
+        
+        // Show error
         apiError.classList.remove('hidden');
+        apiError.style.display = 'block';
+        
+        // Make sure results section is visible
+        resultsSection.classList.remove('hidden');
+        resultsSection.style.display = 'block';
     }
 
     // Simple markdown to HTML converter
@@ -636,18 +687,25 @@ document.addEventListener('DOMContentLoaded', function() {
         // Convert italic text
         html = html.replace(/\*(.*?)\*/g, '<em>$1</em>');
         
-        // Convert lists
+        // Convert unordered lists
         html = html.replace(/^\* (.*$)/gm, '<li>$1</li>');
         html = html.replace(/(<li>.*<\/li>)\n(?!<li>)/g, '$1</ul>\n');
         html = html.replace(/(?<!<\/ul>\n)(<li>)/g, '<ul>$1');
         
         // Convert numbered lists
-        html = html.replace(/^\d+\. (.*$)/gm, '<li>$1</li>');
-        html = html.replace(/(<li>.*<\/li>)\n(?!<li>)/g, '$1</ol>\n');
-        html = html.replace(/(?<!<\/ol>\n)(<li>)/g, '<ol>$1');
+        // This regex captures the actual number before the period
+        const numberedListRegex = /^(\d+)\. (.*$)/gm;
+        html = html.replace(numberedListRegex, function(match, number, content) {
+            return '<li value="' + number + '">' + content + '</li>';
+        });
+        // html = html.replace(/^\d+\. (.*$)/gm, '<li>$1</li>');
+        // html = html.replace(/(<li>.*<\/li>)\n(?!<li>)/g, '$1</ol>\n');
+        // html = html.replace(/(?<!<\/ol>\n)(<li>)/g, '<ol>$1');
+        html = html.replace(/(<li value=.*<\/li>)\n(?!<li value=)/g, '$1</ol>\n');
+        html = html.replace(/(?<!<\/ol>\n)(<li value=)/g, '<ol>$1');
         
         // Convert paragraphs
-        html = html.replace(/^(?!<[hou]|<li).+$/gm, '<p>$&</p>');
+        html = html.replace(/^(?!<[houyl]|<li).+$/gm, '<p>$&</p>');
         
         // Fix any spacing issues
         html = html.replace(/>[\s]+</g, '><');
@@ -673,12 +731,35 @@ document.addEventListener('DOMContentLoaded', function() {
             explanation: explanation.value
         };
         
-        // Show loading and hide form
+        // Clear previous content
+        adviceContainer.innerHTML = '';
+        savedAdvice = '';
+        savedAssessment = null;
+        
+        // 1. First hide the form
         appealFormSection.classList.add('hidden');
+        appealFormSection.style.display = 'none';
+        
+        // 2. Make results section visible but ensure the actual results are hidden
         resultsSection.classList.remove('hidden');
-        loadingIndicator.classList.remove('hidden');
+        resultsSection.style.display = 'block';
+        
         resultsContainer.classList.add('hidden');
+        resultsContainer.style.display = 'none';
+        
         apiError.classList.add('hidden');
+        
+        // 3. CRITICAL: Make sure loading indicator is visible (both by class and style)
+        loadingIndicator.classList.remove('hidden');
+        loadingIndicator.style.display = 'flex';
+        
+        console.log("Loading indicator state:", {
+            display: loadingIndicator.style.display,
+            classList: loadingIndicator.className,
+            isVisible: loadingIndicator.offsetParent !== null,
+            parentVisible: resultsSection.classList.contains('hidden'),
+            computedStyle: window.getComputedStyle(loadingIndicator).display
+        });
         
         try {
             // Call the Anthropic API
@@ -751,6 +832,105 @@ document.addEventListener('DOMContentLoaded', function() {
         } catch (error) {
             console.error('Error in API call:', error);
             throw error;
+        }
+    }
+
+    // Function to get detailed advice
+    async function getDetailedAdvice(formData, assessment, additionalInfo) {
+        try {
+            // Get direct references to the relevant elements
+            const updatedAdviceContainer = document.getElementById('updated-advice-container');
+            const updatedLoading = document.getElementById('updated-loading');
+            const updatedAdvice = document.getElementById('updated-advice');
+            
+            // Show loading state
+            updatedAdviceContainer.classList.remove('hidden');
+            updatedAdviceContainer.style.display = 'block'; // Ensure container is visible
+            
+            updatedLoading.classList.remove('hidden');
+            updatedLoading.style.display = 'flex'; // Use flex for loading spinner
+            
+            updatedAdvice.classList.add('hidden');
+            updatedAdvice.style.display = 'none'; // Hide advice container
+            
+            // Scroll to the loading indicator
+            updatedAdviceContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            
+            // Create request payload
+            const payload = {
+                ...formData,
+                initialAssessment: assessment.initial_assessment,
+                additionalInfo: additionalInfo
+            };
+            
+            console.log('Calling API with additional info:', payload);
+            
+            // Call the API
+            const response = await fetch('/api/generate-detailed-advice', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            // Check if request was successful
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('API Error Response:', errorText);
+                throw new Error('An error occurred while generating detailed advice');
+            }
+            
+            // Parse response
+            const data = await response.json();
+            console.log('API response received:', data);
+            
+            // IMPORTANT: Hide the loading indicator using both class and style properties
+            updatedLoading.classList.add('hidden');
+            updatedLoading.style.display = 'none';
+            
+            // Display the updated advice
+            updatedAdvice.classList.remove('hidden');
+            updatedAdvice.style.display = 'block';
+            
+            const updatedAdviceContent = document.getElementById('updated-advice-content');
+            
+            // Update the content
+            if (updatedAdviceContent) {
+                updatedAdviceContent.innerHTML = markdownToHtml(data.detailedAdvice);
+            }
+            
+        } catch (error) {
+            console.error('Error getting detailed advice:', error);
+            
+            // Always hide the loading indicator in case of error
+            const updatedLoading = document.getElementById('updated-loading');
+            if (updatedLoading) {
+                updatedLoading.classList.add('hidden');
+                updatedLoading.style.display = 'none';
+            }
+            
+            // Show error in the updated advice container
+            const updatedAdviceContainer = document.getElementById('updated-advice-container');
+            if (updatedAdviceContainer) {
+                updatedAdviceContainer.innerHTML = `
+                    <div class="error-message">
+                        <h3><i class="fas fa-exclamation-circle"></i> Something went wrong</h3>
+                        <p>We couldn't generate updated advice. Please try again.</p>
+                        <p>Error: ${error.message}</p>
+                        <button id="retry-updated-btn" class="btn"><i class="fas fa-sync"></i> Try Again</button>
+                    </div>
+                `;
+                
+                // Add event listener to retry button
+                const retryBtn = document.getElementById('retry-updated-btn');
+                if (retryBtn) {
+                    retryBtn.addEventListener('click', function() {
+                        const additionalInfo = document.getElementById('additional-info').value.trim();
+                        getDetailedAdvice(savedFormData, savedAssessment, additionalInfo);
+                    });
+                }
+            }
         }
     }
 })

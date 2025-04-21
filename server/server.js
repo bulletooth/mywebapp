@@ -176,7 +176,7 @@ app.post('/api/generate-detailed-advice',domainRestriction, async (req, res) => 
       // Get form data and initial assessment from request body
       const { 
         pcnType, pcnReason, pcnIssueDate, incidentDate, 
-        stepsTaken, explanation, initialAssessment 
+        stepsTaken, explanation, initialAssessment, additionalInfo 
       } = req.body;
       
       // Validate required fields
@@ -188,27 +188,43 @@ app.post('/api/generate-detailed-advice',domainRestriction, async (req, res) => 
       }
       
       console.log(`Processing detailed PCN advice request - Type: ${pcnType}, Reason: ${pcnReason}`);
+      console.log(`Additional information provided: ${additionalInfo ? 'Yes' : 'No'}`);
       
-      // Create prompt that includes the initial assessment to save tokens
-      const prompt = `
-  You previously provided an initial assessment for this PCN appeal:
-  
-  ${initialAssessment}
-  
-  Based on the PCN details:
-  - Type: ${pcnType}
-  - Reason: ${pcnReason}
-  - Issued: ${pcnIssueDate}
-  - Incident date: ${incidentDate}
-  - Steps taken: ${stepsTaken || 'None specified'}
-  - Explanation: ${explanation}
-  
-  Now provide:
+      // Create prompt
+      let prompt = `
+You previously provided an initial assessment for this PCN appeal:
+
+${initialAssessment}
+
+Based on the PCN details:
+- Type: ${pcnType}
+- Reason: ${pcnReason}
+- Issued: ${pcnIssueDate}
+- Incident date: ${incidentDate}
+- Steps taken: ${stepsTaken || 'None specified'}
+- Explanation: ${explanation}
+
+Now provide:
   1. Detailed next steps the appellant should take
-  2. A comprehensive draft appeal letter they can use as a template
-  3. Any additional evidence they should try to gather
-  4. Timeline considerations and deadlines they should be aware of
-  `;
+  2. Any additional evidence they should try to gather
+  3. Timeline considerations and deadlines they should be aware of
+`;
+
+      // Add additional information to the prompt if provided
+      if (additionalInfo && additionalInfo.trim()) {
+        prompt += `
+The user has provided additional information to support their appeal:
+
+${additionalInfo}
+`;
+      }
+      
+      prompt += `
+Now provide:
+1. An evaluation of how this additional information affects their case (if applicable)
+2. Detailed next steps the appellant should take
+3. A comprehensive draft appeal letter they can use as a template, incorporating all relevant information
+`;
   
       console.log('Calling Anthropic API for detailed advice...');
       
@@ -274,4 +290,5 @@ app.listen(PORT, () => {
   console.log(`Server running on http://localhost:${PORT}`);
   console.log(`Health check available at: http://localhost:${PORT}/api/health`);
   console.log(`API endpoint available at: http://localhost:${PORT}/api/generate-advice`);
+  console.log(`API endpoint available at: http://localhost:${PORT}/api/generate-detailed-advice`);
 });

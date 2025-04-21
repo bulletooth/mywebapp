@@ -73,15 +73,6 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    incidentDate.addEventListener('change', function() {
-        incidentDateError.textContent = '';
-        
-        // Check if incident date is after issue date
-        if (pcnIssueDate.value !== '' && incidentDate.value > pcnIssueDate.value) {
-            incidentDateError.textContent = 'Incident date cannot be after PCN issue date';
-        }
-    });
-    
     explanation.addEventListener('input', function() {
         if (explanation.value.trim().length >= 30) {
             explanationError.textContent = '';
@@ -93,7 +84,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (e.key === 'Enter') {
             e.preventDefault();
             
-            // Determine which step we're on and proceed accordingly
+            // Determine the current step on and proceed accordingly
             if (step1.classList.contains('active')) {
                 toStep2Btn.click();
             } else if (step2.classList.contains('active')) {
@@ -326,11 +317,120 @@ document.addEventListener('DOMContentLoaded', function() {
         return isValid;
     }
 
+    // Function to process API response and separate the JSON assessment from detailed advice
+    function processApiResponse(responseText) {
+        const separatorIndex = responseText.indexOf('---');
+        
+        if (separatorIndex === -1) {
+            // No separator found, return the whole response as advice
+            return {
+                assessment: null,
+                detailedAdvice: responseText
+            };
+        }
+        
+        const jsonPart = responseText.substring(0, separatorIndex).trim();
+        const advicePart = responseText.substring(separatorIndex + 3).trim();
+        
+        try {
+            const assessment = JSON.parse(jsonPart);
+            // Save the assessment globally
+            savedAssessment = assessment;
+            return {
+                assessment: assessment,
+                detailedAdvice: advicePart
+            };
+        } catch (error) {
+            console.error('Error parsing assessment JSON:', error);
+            return {
+                assessment: null,
+                detailedAdvice: responseText
+            };
+        }
+    }
+
+    // Function to create rating visualization
+    function createRatingVisualization(rating) {
+        // Determine color based on rating
+        let color;
+        if (rating < 30) {
+            color = '#e74c3c'; // Red
+        } else if (rating < 70) {
+            color = '#f39c12'; // Orange/Yellow
+        } else {
+            color = '#2ecc71'; // Green
+        }
+        
+        return `
+            <div class="rating-container">
+                <div class="rating-header">
+                    <h3>Appeal Success Rating</h3>
+                    <div class="rating-value" style="background-color: ${color}">
+                        ${rating}<span class="rating-max">/100</span>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    function createInitialAssessment(assessment) {
+        return `
+            <div class="initial-assessment">
+                <h3>Initial Assessment</h3>
+                <p>${assessment.initial_assessment}</p>
+            </div>
+        `;
+    }
+
+    // Function to create strength/weakness lists
+    function createAssessmentLists(strengths, weaknesses) {
+    const strengthsHTML = strengths.map(s => `<li class="strength"><i class="fas fa-check-circle"></i> ${s}</li>`).join('');
+    const weaknessesHTML = weaknesses.map(w => `<li class="weakness"><i class="fas fa-exclamation-circle"></i> ${w}</li>`).join('');
+    
+    return `
+        <div class="assessment-lists">
+            <div class="strengths-list">
+                <h4>Strengths</h4>
+                <ul>${strengthsHTML}</ul>
+            </div>
+            <div class="weaknesses-list">
+                <h4>Weaknesses</h4>
+                <ul>${weaknessesHTML}</ul>
+            </div>
+        </div>
+    `;
+    }
+
+    // Function to create the initial assessment
+    function createInitialAssessment(assessment) {
+        return `
+            <div class="initial-assessment">
+                <h3>Initial Assessment</h3>
+                <p>${assessment.initial_assessment}</p>
+            </div>
+        `;
+    }
+
+    // Function to create "Continue" button
+    function createContinueButton() {
+        return `
+            <div class="continue-container">
+                <button id="continueBtn" class="btn continue-btn">
+                    Continue to Full Appeal Advice <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        `;
+    }
+
+    // Save the original form data globally
+    let savedFormData = {};
+    let savedAssessment = null;
+
     // Show results
     function showResults(response) {
         console.log("Showing results, hiding loading indicator");
         
-        // First, make sure the loading indicator is hidden
+        // Hidie loading indicator
         if (loadingIndicator) {
             loadingIndicator.style.display = 'none'; // Force immediate hide with inline style
             loadingIndicator.classList.add('hidden');
@@ -347,27 +447,169 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         
         // Process and display the advice
-        if (adviceContainer) {
-            // Validate response
-            if (response && typeof response === 'string') {
-                const htmlResponse = markdownToHtml(response);
-                adviceContainer.innerHTML = htmlResponse;
-            } else {
-                adviceContainer.innerHTML = '<p>Sorry, we received an invalid response. Please try again.</p>';
-                console.error("Invalid response received:", response);
-            }
+        const processedResponse = processApiResponse(response);
+    
+        if (processedResponse.assessment) {
+            // Create assessment view
+            const ratingHTML = createRatingVisualization(processedResponse.assessment.rating);
+            const initialAssessmentHTML = createInitialAssessment(processedResponse.assessment);
+            const listsHTML = createAssessmentLists(
+                processedResponse.assessment.strengths, 
+                processedResponse.assessment.weaknesses
+            );
+            const continueButtonHTML = createContinueButton();
+            
+            // Store the detailed advice for later
+            savedAdvice = processedResponse.detailedAdvice;
+            
+            // Update the advice container
+            adviceContainer.innerHTML = `
+                <div class="assessment-view">
+                    ${ratingHTML}
+                    ${initialAssessmentHTML}
+                    ${listsHTML}
+                    ${continueButtonHTML}
+                </div>
+            `;
+            
+            // Add event listener to the continue button
+            document.getElementById('continueBtn').addEventListener('click', function() {
+                showDetailedAdvice(savedAdvice);
+            });
         } else {
-            console.error("Advice container element not found!");
+            // If no assessment JSON was found, just show the response as advice
+            const htmlResponse = markdownToHtml(processedResponse.detailedAdvice);
+            adviceContainer.innerHTML = htmlResponse;
         }
-        
-        // Force a DOM reflow to ensure UI updates
-        document.body.offsetHeight;
         
         // Ensure the results section is visible and scroll to it
-        if (resultsSection) {
-            resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        
+        // Ensure the results section is visible and scroll to it
+        resultsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Function to get detailed advice
+    async function getDetailedAdvice(formData, assessment) {
+        try {
+            // Create request payload
+            const payload = {
+                ...formData,
+                initialAssessment: assessment.initial_assessment
+            };
+            
+            // Call the API
+            const response = await fetch('/api/generate-detailed-advice', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(payload)
+            });
+            
+            // Check if request was successful
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('API Error Response:', errorText);
+                
+                let errorData;
+                try {
+                    errorData = JSON.parse(errorText);
+                } catch (parseError) {
+                    throw new Error('An error occurred while generating detailed advice');
+                }
+                
+                throw new Error(errorData.message || 'An error occurred while generating detailed advice');
+            }
+            
+            // Parse response
+            const data = await response.json();
+            
+            // Show the detailed advice
+            showDetailedAdvice(data.detailedAdvice);
+            
+        } catch (error) {
+            console.error('Error getting detailed advice:', error);
+            
+            // Show error in the advice container
+            adviceContainer.innerHTML = `
+                <div class="error-message">
+                    <h3><i class="fas fa-exclamation-circle"></i> Something went wrong</h3>
+                    <p>We couldn't generate detailed advice. Please try again.</p>
+                    <button id="retryDetailedBtn" class="btn"><i class="fas fa-sync"></i> Try Again</button>
+                </div>
+            `;
+            
+            // Add event listener to retry button
+            document.getElementById('retryDetailedBtn').addEventListener('click', function() {
+                getDetailedAdvice(savedFormData, savedAssessment);
+            });
         }
     }
+
+    // Function to show detailed advice
+    function showDetailedAdvice(adviceText) {
+        const htmlResponse = markdownToHtml(adviceText);
+        
+        // Create back button
+        const backButton = document.createElement('button');
+        backButton.className = 'btn back-btn';
+        backButton.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Assessment';
+        backButton.addEventListener('click', function() {
+            // Get the saved assessment data
+            if (savedAssessment) {
+                // Recreate the assessment view
+                const ratingHTML = createRatingVisualization(savedAssessment.rating);
+                const initialAssessmentHTML = createInitialAssessment(savedAssessment);
+                const listsHTML = createAssessmentLists(
+                    savedAssessment.strengths, 
+                    savedAssessment.weaknesses
+                );
+                const continueButtonHTML = createContinueButton();
+                
+                // Update the advice container
+                adviceContainer.innerHTML = `
+                    <div class="assessment-view">
+                        ${ratingHTML}
+                        ${initialAssessmentHTML}
+                        ${listsHTML}
+                        ${continueButtonHTML}
+                    </div>
+                `;
+                
+                // Add event listener to the continue button
+                document.getElementById('continueBtn').addEventListener('click', function() {
+                    showDetailedAdvice(savedAdvice);
+                });
+            } else {
+                // If there's no saved assessment, show a message
+                adviceContainer.innerHTML = `
+                    <div class="error-message">
+                        <h3><i class="fas fa-exclamation-circle"></i> Something went wrong</h3>
+                        <p>We couldn't retrieve your assessment information.</p>
+                        <button id="startOverBtn" class="btn"><i class="fas fa-redo"></i> Start New Appeal</button>
+                    </div>
+                `;
+            }
+        });
+        
+        // Replace content in advice container
+        adviceContainer.innerHTML = `
+            <div class="detailed-advice">
+                ${htmlResponse}
+            </div>
+        `;
+        
+        // Add back button at the top
+        adviceContainer.prepend(backButton);
+        
+        // Scroll to the advice
+        adviceContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    // Store the original API response
+    let originalApiResponse = '';
+    let savedAdvice = '';
 
     // Show API error
     function showApiError() {
@@ -461,7 +703,10 @@ document.addEventListener('DOMContentLoaded', function() {
     // Call Anthropic API
     async function callAnthropicAPI(formData) {
         try {
-            // Call your backend API instead of directly calling Anthropic
+            // Save form data globally
+            savedFormData = {...formData};
+            
+            // Call your backend API
             const response = await fetch('/api/generate-advice', {
                 method: 'POST',
                 headers: {
@@ -475,7 +720,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const errorText = await response.text();
                 console.error('API Error Response:', errorText);
                 
-                // Try to parse as JSON, but handle the case where it's not JSON
+                // Try to parse as JSON
                 let errorData;
                 try {
                     errorData = JSON.parse(errorText);
@@ -488,20 +733,21 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Try to parse the response as JSON
-            let data;
+            let responseText;
             try {
-                const responseText = await response.text();
+                responseText = await response.text();
                 console.log('Raw API Response:', responseText);
                 
-                // Try parsing the response text as JSON
-                data = JSON.parse(responseText);
+                // Save the original response
+                originalApiResponse = responseText;
+                
+                const data = JSON.parse(responseText);
+                return data.advice;
+                
             } catch (parseError) {
                 console.error('Error parsing API response as JSON:', parseError);
                 throw new Error('Invalid response format from server');
             }
-            
-            return data.advice;
-            
         } catch (error) {
             console.error('Error in API call:', error);
             throw error;

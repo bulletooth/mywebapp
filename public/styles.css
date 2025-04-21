@@ -288,6 +288,15 @@ textarea:focus {
 }
 
 /* Results Section */
+.results {
+    padding: 1rem;
+}
+
+.results h2 {
+    margin-top: 0;
+    margin-bottom: 0.75rem;
+}
+
 .results-section {
     min-height: 300px;
 }
@@ -319,12 +328,10 @@ textarea:focus {
 }
 
 .advice-container {
-    background-color: #f9f9f9;
-    border: 1px solid #ddd;
-    border-radius: var(--border-radius);
-    padding: 1.5rem;
-    margin-bottom: 1.5rem;
-    white-space: pre-line;
+    padding-top: 0.75rem;
+    padding-bottom: 0.75rem;
+    margin-top: 0.5rem;
+    margin-bottom: 0.5rem;
 }
 
 .action-buttons {
@@ -381,6 +388,19 @@ footer p {
 }
 
 /* Media Queries */
+@media (max-width: 576px) {
+    .rating-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .rating-value {
+        align-self: stretch;
+        text-align: center;
+    }
+}
+
 @media (min-width: 768px) {
     h1 {
         font-size: 2.2rem;
@@ -413,6 +433,10 @@ footer p {
     .accessibility-controls {
         margin-top: 0;
     }
+
+    .assessment-lists {
+        grid-template-columns: 1fr 1fr;
+    }
 }
 
 @media (min-width: 992px) {
@@ -428,4 +452,154 @@ footer p {
         justify-content: flex-end;
         gap: 1rem;
     }
+}
+
+/* Rating visualization styles */
+.rating-container {
+    margin-bottom: 1rem;
+    background-color: #f9f9f9;
+    border-radius: var(--border-radius);
+    padding: 0.75rem;
+    border: 1px solid #eee;
+}
+
+.rating-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.rating-header h3 {
+    margin-bottom: 0;
+    flex-grow: 1;
+}
+
+.rating-value {
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 0.4rem 0.8rem;
+    border-radius: var(--border-radius);
+    color: white;
+    display: inline-flex;
+    align-items: baseline;
+    min-width: 100px;
+    justify-content: center;
+}
+
+.rating-max {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    margin-left: 0.2rem;
+}
+
+/* Assessment lists */
+.assessment-lists {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+
+@media (min-width: 768px) {
+    .assessment-lists {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.strengths-list h4, .weaknesses-list h4 {
+    margin-bottom: 0.5rem;
+    font-size: 1rem;
+}
+
+.strengths-list ul, .weaknesses-list ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.strength, .weakness {
+    padding: 0.3rem 0;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.5rem;
+    margin: 0;
+}
+
+.strength i {
+    color: var(--success-color);
+}
+
+.weakness i {
+    color: var(--error-color);
+}
+
+/* Overall assessment view */
+.assessment-view {
+    animation: fadeIn 0.8s;
+    /* Remove any margin that might be causing extra space */
+    margin-top: 0;
+    margin-bottom: 0;
+}
+
+.assessment-view h3, .assessment-view h4 {
+    color: var(--dark-color);
+}
+
+/* Initial assessment box */
+.initial-assessment {
+    background-color: var(--secondary-color);
+    border-radius: var(--border-radius);
+    padding: 0.75rem;
+    margin-bottom: 1rem;
+}
+
+.initial-assessment h3 {
+    margin-bottom: 0.3rem;
+    font-size: 1.1rem;
+}
+
+.initial-assessment p {
+    margin-bottom: 0;
+}
+
+/* Continue button */
+.continue-container {
+    text-align: center;
+    margin: 1rem 0 0.25rem;
+}
+
+.continue-btn {
+    background-color: var(--primary-color);
+    font-weight: 600;
+    font-size: 1rem;
+    padding: 0.8rem 1.5rem;
+}
+
+.continue-btn:hover {
+    background-color: #2a5985;
+}
+
+/* Back button */
+.back-btn {
+    background-color: var(--secondary-color);
+    color: var(--dark-color);
+    margin-bottom: 1rem;
+}
+
+.back-btn:hover {
+    background-color: #a8bfcb;
+}
+
+/* Detailed advice section */
+.detailed-advice {
+    margin-top: 1rem;
+}
+
+.detailed-advice h2:first-of-type {
+    margin-top: 0;
+}
+
+/* Animation for assessment view */
+.assessment-view {
+    animation: fadeIn 0.8s;
 }

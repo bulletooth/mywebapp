@@ -500,12 +500,6 @@ footer p {
     margin-bottom: 1rem;
 }
 
-@media (min-width: 768px) {
-    .assessment-lists {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
 .strengths-list h4, .weaknesses-list h4 {
     margin-bottom: 0.5rem;
     font-size: 1rem;

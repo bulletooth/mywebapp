@@ -107,6 +107,11 @@ First, provide a JSON object with this structure:
 }
 
 Then provide a line with exactly "---" as a separator.
+
+Now provide:
+  1. Detailed next steps the appellant should take
+  2. Any additional evidence they should try to gather
+  3. Timeline considerations and deadlines they should be aware of
 `;
 
     console.log('Calling Anthropic API...');
@@ -115,8 +120,9 @@ Then provide a line with exactly "---" as a separator.
     const response = await axios.post(
       'https://api.anthropic.com/v1/messages',
       {
-        model: "claude-3-opus-20240229",
+        model: "claude-3-haiku-20240307",
         max_tokens: 1024,
+        temperature: 0.1,
         messages: [
           {
             role: "user",
@@ -203,11 +209,6 @@ Based on the PCN details:
 - Incident date: ${incidentDate}
 - Steps taken: ${stepsTaken || 'None specified'}
 - Explanation: ${explanation}
-
-Now provide:
-  1. Detailed next steps the appellant should take
-  2. Any additional evidence they should try to gather
-  3. Timeline considerations and deadlines they should be aware of
 `;
 
       // Add additional information to the prompt if provided
@@ -232,8 +233,9 @@ Now provide:
       const response = await axios.post(
         'https://api.anthropic.com/v1/messages',
         {
-          model: "claude-3-opus-20240229",
+          model: "claude-3-haiku-20240307",
           max_tokens: 1024,
+          "temperature": 0.1,
           messages: [
             {
               role: "user",

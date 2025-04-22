@@ -422,15 +422,6 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-    function createInitialAssessment(assessment) {
-        return `
-            <div class="initial-assessment">
-                <h3>Initial Assessment</h3>
-                <p>${assessment.initial_assessment}</p>
-            </div>
-        `;
-    }
-
     // Function to create strength/weakness lists
     function createAssessmentLists(strengths, weaknesses) {
     const strengthsHTML = strengths.map(s => `<li class="strength"><i class="fas fa-check-circle"></i> ${s}</li>`).join('');

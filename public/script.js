@@ -444,7 +444,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to create the initial assessment
     function createInitialAssessment(assessment) {
         return `
-            <div class="initial-assessment" aria-label="Initial assessment results">
+            <div class="initial-assessment">
                 <h3>Initial Assessment</h3>
                 <p>${assessment.initial_assessment}</p>
             </div>

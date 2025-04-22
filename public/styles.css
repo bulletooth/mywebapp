@@ -137,11 +137,11 @@ section {
 }
 
 .disclaimer {
-    background-color: var(--secondary-color);
+    background-color: var(--primary-color);
     padding: 1rem;
     border-radius: var(--border-radius);
     margin-top: 1rem;
-    border-left: 4px solid var(--primary-color);
+    border-left: 4px solid var(--dark-color);
 }
 
 /* Form Styles */

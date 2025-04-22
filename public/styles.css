@@ -387,73 +387,6 @@ footer p {
     gap: 0.3rem;
 }
 
-/* Media Queries */
-@media (max-width: 576px) {
-    .rating-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-    }
-    
-    .rating-value {
-        align-self: stretch;
-        text-align: center;
-    }
-}
-
-@media (min-width: 768px) {
-    h1 {
-        font-size: 2.2rem;
-    }
-    
-    h2 {
-        font-size: 1.8rem;
-    }
-    
-    h3 {
-        font-size: 1.4rem;
-    }
-    
-    .radio-group {
-        flex-direction: row;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-    
-    .radio-option {
-        width: calc(50% - 0.5rem);
-    }
-    
-    footer .container {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-    
-    .accessibility-controls {
-        margin-top: 0;
-    }
-
-    .assessment-lists {
-        grid-template-columns: 1fr 1fr;
-    }
-}
-
-@media (min-width: 992px) {
-    .container {
-        width: 85%;
-    }
-    
-    .radio-option {
-        width: auto;
-    }
-    
-    .form-navigation {
-        justify-content: flex-end;
-        gap: 1rem;
-    }
-}
-
 /* Rating visualization styles */
 .rating-container {
     margin-bottom: 1rem;
@@ -530,7 +463,6 @@ footer p {
 /* Overall assessment view */
 .assessment-view {
     animation: fadeIn 0.8s;
-    /* Remove any margin that might be causing extra space */
     margin-top: 0;
     margin-bottom: 0;
 }
@@ -672,4 +604,71 @@ footer p {
 /* Animation for updated advice */
 .updated-advice {
     animation: fadeIn 0.8s;
+}
+
+/* Media Queries */
+@media (max-width: 576px) {
+    .rating-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .rating-value {
+        align-self: stretch;
+        text-align: center;
+    }
+}
+
+@media (min-width: 768px) {
+    h1 {
+        font-size: 2.2rem;
+    }
+    
+    h2 {
+        font-size: 1.8rem;
+    }
+    
+    h3 {
+        font-size: 1.4rem;
+    }
+    
+    .radio-group {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .radio-option {
+        width: calc(50% - 0.5rem);
+    }
+    
+    footer .container {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .accessibility-controls {
+        margin-top: 0;
+    }
+
+    .assessment-lists {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (min-width: 992px) {
+    .container {
+        width: 85%;
+    }
+    
+    .radio-option {
+        width: auto;
+    }
+    
+    .form-navigation {
+        justify-content: flex-end;
+        gap: 1rem;
+    }
 }

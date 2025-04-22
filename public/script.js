@@ -49,7 +49,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const decreaseFontBtn = document.getElementById('decreaseFontBtn');
     const toggleContrastBtn = document.getElementById('toggleContrastBtn');
     
-    // Add event listeners for form fields to provide real-time validation
+    // Form fields real-time validation
     pcnType.addEventListener('change', function() {
         if (pcnType.value !== '') {
             pcnTypeError.textContent = '';
@@ -79,12 +79,12 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Add keypress event listeners for better keyboard accessibility
+    // Keypress event listeners for accessibility
     pcnForm.addEventListener('keypress', function(e) {
         if (e.key === 'Enter') {
             e.preventDefault();
             
-            // Determine the current step on and proceed accordingly
+            // Determine the current step and proceed accordingly
             if (step1.classList.contains('active')) {
                 toStep2Btn.click();
             } else if (step2.classList.contains('active')) {
@@ -95,7 +95,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
     
-    // Action button event listeners
+    // Action buttons
     copyBtn.addEventListener('click', function() {
         const textToCopy = adviceContainer.innerText;
         navigator.clipboard.writeText(textToCopy)
@@ -124,7 +124,7 @@ document.addEventListener('DOMContentLoaded', function() {
         savedAssessment = null;
         originalApiResponse = '';
         
-        // 1. Hide ALL results-related elements
+        // Hide all results-related elements
         resultsSection.classList.add('hidden');
         resultsSection.style.display = 'none';
         
@@ -148,14 +148,14 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         
-        // 2. Show form section
+        // Show form section
         appealFormSection.classList.remove('hidden');
         appealFormSection.style.display = 'block';
         
-        // 3. Reset to first step
+        // Reset to first step
         showStep(1);
         
-        // 4. Scroll to the form
+        // Scroll to the form
         appealFormSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
     
@@ -398,9 +398,9 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Function to create rating visualization
+    // Function to create rating visualisation
     function createRatingVisualization(rating) {
-        // Determine color based on rating
+        // Determine colour based on rating
         let color;
         if (rating < 30) {
             color = '#e74c3c'; // Red
@@ -468,17 +468,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Show results
     function showResults(response) {
-        console.log("Showing results, hiding loading indicator");
-        
-        // 1. Hide loading indicator (both class and style)
+        // Hide loading indicator (both class and style)
         loadingIndicator.classList.add('hidden');
         loadingIndicator.style.display = 'none';
         
-        // 2. Show the results container (both class and style)
+        // Show the results container (both class and style)
         resultsContainer.classList.remove('hidden');
         resultsContainer.style.display = 'block';
         
-        // 3. Process and display the advice
+        // Process and display the advice
         const processedResponse = processApiResponse(response);
         
         if (processedResponse.assessment) {
@@ -542,7 +540,6 @@ document.addEventListener('DOMContentLoaded', function() {
         backButton.className = 'btn back-btn';
         backButton.innerHTML = '<i class="fas fa-arrow-left"></i> Back to Assessment';
         
-        // Fixed back button functionality
         backButton.addEventListener('click', function() {
             // Direct manipulation of the DOM to recreate the assessment view
             if (savedAssessment) {
@@ -565,7 +562,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     </div>
                 `;
                 
-                // Add event listener to the continue button - needs to be done after creating the button
+                // Add event listener to the continue button
                 const continueBtn = document.getElementById('continueBtn');
                 if (continueBtn) {
                     continueBtn.addEventListener('click', function() {
@@ -617,7 +614,7 @@ document.addEventListener('DOMContentLoaded', function() {
         // Add back button at the top
         adviceContainer.prepend(backButton);
         
-        // Add event listener to the submit additional info button - after creating it
+        // Add event listener to the submit additional info button
         const submitBtn = document.getElementById('submit-additional-info');
         if (submitBtn) {
             submitBtn.addEventListener('click', function() {
@@ -641,7 +638,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Store the original API response
-    let originalApiResponse = '';
     let savedAdvice = '';
 
     // Show API error
@@ -689,9 +685,6 @@ document.addEventListener('DOMContentLoaded', function() {
         html = html.replace(numberedListRegex, function(match, number, content) {
             return '<li value="' + number + '">' + content + '</li>';
         });
-        // html = html.replace(/^\d+\. (.*$)/gm, '<li>$1</li>');
-        // html = html.replace(/(<li>.*<\/li>)\n(?!<li>)/g, '$1</ol>\n');
-        // html = html.replace(/(?<!<\/ol>\n)(<li>)/g, '<ol>$1');
         html = html.replace(/(<li value=.*<\/li>)\n(?!<li value=)/g, '$1</ol>\n');
         html = html.replace(/(?<!<\/ol>\n)(<li value=)/g, '<ol>$1');
         
@@ -727,11 +720,11 @@ document.addEventListener('DOMContentLoaded', function() {
         savedAdvice = '';
         savedAssessment = null;
         
-        // 1. First hide the form
+        // First hide the form
         appealFormSection.classList.add('hidden');
         appealFormSection.style.display = 'none';
         
-        // 2. Make results section visible but ensure the actual results are hidden
+        // Make results section visible but ensure the actual results are hidden
         resultsSection.classList.remove('hidden');
         resultsSection.style.display = 'block';
         
@@ -740,17 +733,9 @@ document.addEventListener('DOMContentLoaded', function() {
         
         apiError.classList.add('hidden');
         
-        // 3. CRITICAL: Make sure loading indicator is visible (both by class and style)
+        // Make sure loading indicator is visible (both by class and style)
         loadingIndicator.classList.remove('hidden');
         loadingIndicator.style.display = 'flex';
-        
-        console.log("Loading indicator state:", {
-            display: loadingIndicator.style.display,
-            classList: loadingIndicator.className,
-            isVisible: loadingIndicator.offsetParent !== null,
-            parentVisible: resultsSection.classList.contains('hidden'),
-            computedStyle: window.getComputedStyle(loadingIndicator).display
-        });
         
         try {
             // Call the Anthropic API
@@ -778,7 +763,7 @@ document.addEventListener('DOMContentLoaded', function() {
             // Save form data globally
             savedFormData = {...formData};
             
-            // Call your backend API
+            // Call backend API
             const response = await fetch('/api/generate-advice', {
                 method: 'POST',
                 headers: {
@@ -808,7 +793,6 @@ document.addEventListener('DOMContentLoaded', function() {
             let responseText;
             try {
                 responseText = await response.text();
-                console.log('Raw API Response:', responseText);
                 
                 // Save the original response
                 originalApiResponse = responseText;
@@ -854,8 +838,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 additionalInfo: additionalInfo
             };
             
-            console.log('Calling API with additional info:', payload);
-            
             // Call the API
             const response = await fetch('/api/generate-detailed-advice', {
                 method: 'POST',
@@ -874,9 +856,8 @@ document.addEventListener('DOMContentLoaded', function() {
             
             // Parse response
             const data = await response.json();
-            console.log('API response received:', data);
             
-            // IMPORTANT: Hide the loading indicator using both class and style properties
+            // Hide the loading indicator using both class and style properties
             updatedLoading.classList.add('hidden');
             updatedLoading.style.display = 'none';
             

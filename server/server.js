@@ -8,7 +8,7 @@ const axios = require('axios');
 dotenv.config();
 
 // Validate required environment variables
-const requiredEnvVars = ['ANTHROPIC_API_KEY', 'AUTH_USERNAME', 'AUTH_PASSWORD'];
+const requiredEnvVars = ['ANTHROPIC_API_KEY', 'PORT'];
 const missingEnvVars = requiredEnvVars.filter(envVar => !process.env[envVar]);
 
 if (missingEnvVars.length > 0) {
@@ -85,7 +85,7 @@ app.post('/api/generate-advice', domainRestriction, async (req, res) => {
     
     console.log(`Processing PCN advice request - Type: ${pcnType}, Reason: ${pcnReason}`);
     
-    // Create prompt for Anthropic API
+    // Create prompt
     const prompt = `
 Please review this PCN appeal information:
 
@@ -95,8 +95,9 @@ Issued: ${pcnIssueDate}
 Incident: ${incidentDate}
 Steps: ${stepsTaken || 'None specified'}
 
-Explanation:
+<explanation>
 ${explanation}
+</explanation>
 
 First, provide a JSON object with this structure:
 {
@@ -123,6 +124,7 @@ Now provide:
         model: "claude-3-haiku-20240307",
         max_tokens: 1024,
         temperature: 0.1,
+        system: "You are an expert legal advisor on Penalty Charge Notices, but use easy-to-understand language and terminology so that the average person can easily comprehend. Please copy the style of the prompt for your responses.",
         messages: [
           {
             role: "user",
@@ -215,8 +217,9 @@ Based on the PCN details:
       if (additionalInfo && additionalInfo.trim()) {
         prompt += `
 The user has provided additional information to support their appeal:
-
+<additional info>
 ${additionalInfo}
+</additional info>
 `;
       }
       
@@ -235,7 +238,8 @@ Now provide:
         {
           model: "claude-3-haiku-20240307",
           max_tokens: 1024,
-          "temperature": 0.1,
+          temperature: 0.1,
+          system: "You are an expert legal advisor on Penalty Charge Notices, but use easy-to-understand language and terminology so that the average person can easily comprehend. Please copy the style of the prompt for your responses.",
           messages: [
             {
               role: "user",

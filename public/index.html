@@ -32,11 +32,11 @@
         <section class="appeal-form" id="appeal-form-section">
             <h2>PCN Appeal Information</h2>
             <form id="pcnForm">
-                <div class="progress-bar">
+                <div class="progress-bar" aria-label="Form progress" role="progressbar">
                     <div class="progress" id="formProgress"></div>
                 </div>
                 
-                <div class="form-step active" id="step1">
+                <div class="form-step active" id="step1" aria-current="step 1" aria-label="Step 1 of 3: PCN Details">
                     <h3>PCN Details</h3>
                     <div class="form-group">
                         <label for="pcnType">What is your PCN type?</label>
@@ -79,64 +79,64 @@
                     </div>
                 </div>
 
-                <div class="form-step" id="step2">
+                <div class="form-step" id="step2" aria-current="step 2" aria-label="Step 2 of 3: Dates & Actions">
                     <h3>Dates & Actions</h3>
                     <div class="form-group">
                         <label for="pcnIssueDate">When was the PCN issued?</label>
-                        <input type="date" id="pcnIssueDate" name="pcnIssueDate" required>
+                        <input type="date" id="pcnIssueDate" name="pcnIssueDate" required aria-required="true" aria-invalid="false" aria-label="Please enter Penalty Charge Notice issue date" aria-describedby="pcnIssueDateError">
                         <span class="error-message" id="pcnIssueDateError"></span>
                     </div>
 
                     <div class="form-group">
                         <label for="incidentDate">When did the incident happen?</label>
-                        <input type="date" id="incidentDate" name="incidentDate" required>
+                        <input type="date" id="incidentDate" name="incidentDate" required aria-required="true" aria-invalid="false" aria-label="Please enter incident date" aria-describedby="incidentDateError">
                         <span class="error-message" id="incidentDateError"></span>
                     </div>
 
                     <div class="form-group">
                         <label for="stepsTaken">What steps have you taken already?</label>
-                        <textarea id="stepsTaken" name="stepsTaken" rows="3" placeholder="e.g., Contacted the council, gathered evidence, etc."></textarea>
+                        <textarea id="stepsTaken" name="stepsTaken" rows="3" placeholder="e.g., Contacted the council, gathered evidence, etc." aria-invalid="false" aria-label="What steps have you taken already?" aria-describedby="stepsTakenError"></textarea>
                         <span class="error-message" id="stepsTakenError"></span>
                     </div>
 
                     <div class="form-navigation">
-                        <button type="button" class="btn prev-btn" id="toStep1"><i class="fas fa-arrow-left"></i> Previous</button>
-                        <button type="button" class="btn next-btn" id="toStep3">Next <i class="fas fa-arrow-right"></i></button>
+                        <button type="button" class="btn prev-btn" id="toStep1" aria-label="Go back to previous step"><i class="fas fa-arrow-left"></i> Previous</button>
+                        <button type="button" class="btn next-btn" id="toStep3" aria-label="Go forward to next step">Next <i class="fas fa-arrow-right"></i></button>
                     </div>
                 </div>
 
-                <div class="form-step" id="step3">
+                <div class="form-step" id="step3" aria-current="step 3" aria-label="Step 3 of 3: Your Explanation">
                     <h3>Your Explanation</h3>
                     <div class="form-group">
                         <label for="explanation">Please explain what happened and why you are appealing:</label>
-                        <textarea id="explanation" name="explanation" rows="6" required placeholder="Provide as much relevant detail as possible about your situation..."></textarea>
+                        <textarea id="explanation" name="explanation" rows="6" required placeholder="Provide as much relevant detail as possible about your situation..." aria-invalid="false" aria-label="Please explain what happened and why you are appealing." aria-describedby="explanationError"></textarea>
                         <span class="error-message" id="explanationError"></span>
                     </div>
 
                     <div class="form-navigation">
-                        <button type="button" class="btn prev-btn" id="fromStep3toStep2"><i class="fas fa-arrow-left"></i> Previous</button>
-                        <button type="submit" class="btn submit-btn" id="submitBtn">Get Appeal Advice <i class="fas fa-paper-plane"></i></button>
+                        <button type="button" class="btn prev-btn" id="fromStep3toStep2" aria-label="Go back to previous step"><i class="fas fa-arrow-left"></i> Previous</button>
+                        <button type="submit" class="btn submit-btn" id="submitBtn" aria-label="Submit the form for assessment and advice">Get Appeal Advice <i class="fas fa-paper-plane"></i></button>
                     </div>
                 </div>
 
-                <div class="additional-info-section" id="additional-info-section"></div>
+                <div class="additional-info-section" id="additional-info-section" aria-current="additional info section" aria-label="Updated appeal advice"></div>
             </form>
         </section>
 
         <section class="results-section hidden" id="results-section">
-            <div class="loading" id="loading">
-                <div class="spinner"></div>
+            <div class="loading" id="loading" aria-live="polite">
+                <div class="spinner" aria-label="Loading results" role="status"></div>
                 <p>Analysing your appeal information...</p>
             </div>
             
-            <div class="results hidden" id="results">
+            <div class="results hidden" id="results" aria-live="polite" aria-atomic="true">
                 <h2>PCN Appeal Assessment</h2>
                 <div class="advice-container" id="advice-container">
                     <!-- AI response will be inserted here -->
                 </div>
                 <div class="action-buttons">
-                    <button id="copyBtn" class="btn"><i class="fas fa-copy"></i> Copy Content</button>
-                    <button id="startOverBtn" class="btn"><i class="fas fa-redo"></i> Start New Appeal</button>
+                    <button id="copyBtn" class="btn" aria-label="Copy the advice to clipboard"><i class="fas fa-copy"></i> Copy Content</button>
+                    <button id="startOverBtn" class="btn" aria-label="Start a new appeal process"><i class="fas fa-redo"></i> Start New Appeal</button>
                 </div>
             </div>
 
@@ -145,7 +145,7 @@
                     <div class="spinner"></div>
                     <p>Generating updated advice...</p>
                 </div>
-                <div id="updated-advice" class="updated-advice hidden">
+                <div id="updated-advice" class="updated-advice hidden" aria-live="polite" aria-atomic="true">
                     <h3>Updated Appeal Advice</h3>
                     <div id="updated-advice-content"></div>
                 </div>

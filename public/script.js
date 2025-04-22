@@ -414,7 +414,7 @@ document.addEventListener('DOMContentLoaded', function() {
             <div class="rating-container">
                 <div class="rating-header">
                     <h3>Appeal Success Rating</h3>
-                    <div class="rating-value" style="background-color: ${color}">
+                    <div class="rating-value" style="background-color: ${color}" aria-label="Appeal success rating is ${rating} out of a 100">
                         ${rating}<span class="rating-max">/100</span>
                     </div>
                 </div>
@@ -444,7 +444,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Function to create the initial assessment
     function createInitialAssessment(assessment) {
         return `
-            <div class="initial-assessment">
+            <div class="initial-assessment" aria-label="Initial assessment results">
                 <h3>Initial Assessment</h3>
                 <p>${assessment.initial_assessment}</p>
             </div>
@@ -455,7 +455,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function createContinueButton() {
         return `
             <div class="continue-container">
-                <button id="continueBtn" class="btn continue-btn">
+                <button id="continueBtn" class="btn continue-btn" aria-label="Continue to Full Appeal Advice">
                     Continue to Full Appeal Advice <i class="fas fa-arrow-right"></i>
                 </button>
             </div>
@@ -577,7 +577,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="error-message">
                         <h3><i class="fas fa-exclamation-circle"></i> Something went wrong</h3>
                         <p>We couldn't retrieve your assessment information.</p>
-                        <button id="startOverBtn" class="btn"><i class="fas fa-redo"></i> Start New Appeal</button>
+                        <button id="startOverBtn" class="btn" aria-label="Start new appeal"><i class="fas fa-redo"></i> Start New Appeal</button>
                     </div>
                 `;
             }
@@ -585,7 +585,7 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Create detailed advice HTML with additional information section
         adviceContainer.innerHTML = `
-            <div class="detailed-advice">
+            <div class="detailed-advice" aria-label="Detailed advice results">
                 ${htmlResponse}
             </div>
             <div class="additional-info-section" id="additional-info-section">
@@ -594,14 +594,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 <div class="form-group">
                     <textarea id="additional-info" name="additional-info" rows="5" placeholder="Add any other relevant details or circumstances that might help your case..."></textarea>
                 </div>
-                <button id="submit-additional-info" class="btn submit-btn">
+                <button id="submit-additional-info" class="btn submit-btn" aria-label="Proceed to generate updated advice">
                     <i class="fas fa-sync-alt"></i> Generate Updated Advice
                 </button>
             </div>
             
             <div id="updated-advice-container" class="updated-advice-container hidden">
-                <div class="loading" id="updated-loading">
-                    <div class="spinner"></div>
+                <div class="loading" id="updated-loading" aria-live="polite">
+                    <div class="spinner" aria-label="Loading results" role="status"></div>
                     <p>Generating updated advice...</p>
                 </div>
                 <div id="updated-advice" class="updated-advice hidden">

@@ -1,10 +1,10 @@
 /* Base Styles & Variables */
 :root {
-    --primary-color: #3a6ea5;
-    --secondary-color: #c0d6df;
-    --accent-color: #ff6b6b;
+    --primary-color: #2a5885;
+    --secondary-color: #8fb0c0;
+    --accent-color: #e74c3c;
     --dark-color: #2c3e50;
-    --light-color: #f7f9fb;
+    --light-color: #ffffff;
     --success-color: #2ecc71;
     --warning-color: #f39c12;
     --error-color: #e74c3c;
@@ -16,11 +16,13 @@
 
 /* High contrast theme (toggled by JS) */
 body.high-contrast {
-    --primary-color: #0066cc;
-    --secondary-color: #e6f0ff;
+    --primary-color: #0046a6;
+    --secondary-color: #fafafa;
     --dark-color: #000000;
     --light-color: #ffffff;
-    --accent-color: #ff0000;
+    --accent-color: #d00000;
+    --border-color: #000000;
+    --focus-outline: 3px solid #0046a6;
 }
 
 /* Base Elements */
@@ -193,7 +195,7 @@ select,
 textarea {
     width: 100%;
     padding: 0.8rem;
-    border: 1px solid #ddd;
+    border: 1px solid #767676;
     border-radius: var(--border-radius);
     font-family: inherit;
     font-size: 1rem;
